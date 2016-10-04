@@ -39,7 +39,7 @@ module Attachinary
 
       if !options[:html][:accept] && accepted_types = options[:attachinary][:accept]
         accept = accepted_types.map do |type|
-          MIME::Types.type_for(type.to_s)[0]
+          MIME::Types.type_for(type.to_s).join(',')
         end.compact
         options[:html][:accept] = accept.join(',') unless accept.empty?
       end

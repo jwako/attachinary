@@ -10,14 +10,23 @@
         <ul>
           <% for(var i=0; i<files.length; i++){ %>
             <li>
-              <% if(files[i].resource_type == "raw") { %>
-                <div class="raw-file"></div>
-              <% } else { %>
-                <img
-                  src="<%= $.cloudinary.url(files[i].public_id, { "version": files[i].version, "format": 'jpg', "crop": 'fill', "width": 75, "height": 75 }) %>"
-                  alt="" width="75" height="75" />
-              <% } %>
-              <a href="#" data-remove="<%= files[i].public_id %>">Remove</a>
+              <div class="row">
+                <div class="col-xs-4">
+                  <% if(files[i].resource_type == "raw") { %>
+                    <div class="raw-file"></div>
+                  <% } else { %>
+                    <img
+                      src="<%= $.cloudinary.url(files[i].public_id, { "version": files[i].version, "format": 'jpg', "crop": 'fill', "width": 75, "height": 75 }) %>"
+                      alt="" width="75" height="75" />
+                  <% } %>
+                </div>
+                <div class="col-xs-2">
+                  <a href="#" data-remove="<%= files[i].public_id %>">削除</a>
+                </div>
+                <div class="col-xs-6">
+                  <input type="text" data-caption="<%= files[i].public_id %>" class="form-control" value="<%= files[i].caption %>" placeholder="写真の説明" />
+                </div>
+              </div>
             </li>
           <% } %>
         </ul>
@@ -114,6 +123,7 @@
 
     addFile: (file) ->
       if !@options.accept || $.inArray(file.format, @options.accept) != -1  || $.inArray(file.resource_type, @options.accept) != -1
+        file['caption'] = ''
         @files.push file
         @redraw()
         @checkMaximum()
@@ -133,6 +143,12 @@
       @redraw()
       @checkMaximum()
       @$input.trigger 'attachinary:fileremoved', [removedFile]
+    
+    addCaptionToFile: (fileIdToAdd, caption) ->
+      for file in @files
+        if file.public_id == fileIdToAdd
+          file['caption'] = caption
+      @redraw()
 
     checkMaximum: ->
       if @maximumReached()
@@ -159,11 +175,14 @@
 
       if @files.length > 0
         @$filesContainer.append @makeHiddenField(JSON.stringify(@files))
-
         @$filesContainer.append @config.render(@files)
         @$filesContainer.find('[data-remove]').on 'click', (event) =>
           event.preventDefault()
           @removeFile $(event.target).data('remove')
+        # add
+        @$filesContainer.find('[data-caption]').on 'blur', (event) =>
+          event.preventDefault()
+          @addCaptionToFile $(event.target).data('caption'), $(event.target).val()
 
         @$filesContainer.show()
       else
