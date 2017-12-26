@@ -175,6 +175,8 @@
     checkSize: (file) ->
       if file.size > @config.maxFileSize
         return false
+      else
+        return true
 
     addFilesContainer: ->
       if @options.files_container_selector? and $(@options.files_container_selector).length > 0
