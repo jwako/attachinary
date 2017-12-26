@@ -6,6 +6,9 @@
       disableWith: 'Uploading...'
       indicateProgress: true
       invalidFormatMessage: 'Invalid file format'
+      invalidFileSizeMessage: 'File size too large'
+      invalidMessage: 'System error'
+      maxFileSize: 10485760
       template: """
         <ul>
           <% for(var i=0; i<files.length; i++){ %>
@@ -78,6 +81,9 @@
 
     bindEventHandlers: ->
       @$input.bind 'fileuploadsend', (event, data) =>
+        unless @checkSize(data.files[0])
+          return false
+
         @$input.addClass 'uploading'
         @$wrapper.addClass 'uploading' if @$wrapper?
         @$form.addClass  'uploading'
@@ -120,6 +126,11 @@
         if @config.disableWith && @config.indicateProgress
           @$submit.val "[#{progress}%] #{@config.disableWith}"
 
+      @$input.bind 'fileuploadfail', (event, data) =>
+        if data.messages && data.messages['uploadedBytes']
+          alert @config.invalidFileSizeMessage
+        else
+          alert @config.invalidMessage
 
     addFile: (file) ->
       if !@options.accept || $.inArray(file.format, @options.accept) != -1  || $.inArray(file.resource_type, @options.accept) != -1
@@ -143,7 +154,7 @@
       @redraw()
       @checkMaximum()
       @$input.trigger 'attachinary:fileremoved', [removedFile]
-    
+
     addCaptionToFile: (fileIdToAdd, caption) ->
       for file in @files
         if file.public_id == fileIdToAdd
@@ -161,7 +172,9 @@
     maximumReached: ->
       @options.maximum && @files.length >= @options.maximum
 
-
+    checkSize: (file) ->
+      if file.size > @config.maxFileSize
+        return false
 
     addFilesContainer: ->
       if @options.files_container_selector? and $(@options.files_container_selector).length > 0
