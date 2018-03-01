@@ -182,8 +182,7 @@
       if @options.files_container_selector? and $(@options.files_container_selector).length > 0
         @$filesContainer = $(@options.files_container_selector)
       else
-        @$filesContainer = $('<div class="attachinary_container">')
-        @$input.after @$filesContainer
+        @$filesContainer = $('#' + @$input.attr('id') + '_attachinary')
 
     redraw: ->
       @$filesContainer.empty()
