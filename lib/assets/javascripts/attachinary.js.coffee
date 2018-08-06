@@ -192,7 +192,7 @@
         @$filesContainer.append @config.render(@files)
         @$filesContainer.find('[data-remove]').on 'click', (event) =>
           event.preventDefault()
-          @removeFile $(event.target).data('remove')
+          @removeFile($(event.target).data('remove') || $(event.target).parent().data('remove'))
         # add
         @$filesContainer.find('[data-caption]').on 'blur', (event) =>
           event.preventDefault()
